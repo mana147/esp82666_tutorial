@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "websocket_esp8266_fw", "websocket_esp8266_fw.vcxproj", "{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Debug|x86.ActiveCfg = Debug|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Debug|x86.Build.0 = Debug|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Release|x86.ActiveCfg = Release|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C6DB9692-0579-418C-9C85-10149DAC3B06}
+	EndGlobalSection
+EndGlobal

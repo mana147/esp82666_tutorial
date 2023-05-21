@@ -1,0 +1,23 @@
+{
+  "wifi": {
+    "BaudRate": 115200,
+    "channel": 1,
+    "mode": "WIFI_STA",
+    "ssid": "Trang Lee",
+    "pass": "dong5599"
+  },
+
+  "socket": {
+    "host": "echo.websocket.org",
+    "mode": "SOCKET_CLIENT",
+    "port": 443,
+    "url": "/",
+    "wss": "WSS_ON"
+  },
+
+  "web": {
+    "mode": "WEB_SERVER",
+    "port": 80,
+    "url": "/"
+  }
+}

@@ -1,0 +1,3 @@
+Uploading files to the server
+There are scenarios where you may want to upload new files to the server from within a browser, without having to connect to the ESP8266 over USB in order to flash a new SPIFFS image.
+In this chapter, I'll show you how to use HTML forms and POST requests to upload or edit files to our little ESP server.

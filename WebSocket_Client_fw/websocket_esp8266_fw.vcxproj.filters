@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{8cb106e9-592b-4f8c-ada7-e1a31fce84af}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="websocket_esp8266_fw.ino" />
+    <None Include="data\config.json">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\index.html">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\index.json">
+      <Filter>data</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="__vm\.websocket_esp8266_fw.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Function_web.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Function_detech.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.WebSocket_Client.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\ESP8266HTTPClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\async_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\AsyncPrinter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\ESPAsyncTCP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\ESPAsyncTCPbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\SyncClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\tcp_axtls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.CODE ESP8266.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Function_web.cpp" />
+    <ClCompile Include="Function_detech.cpp" />
+    <ClCompile Include="lib\ESP8266HTTPClient.cpp" />
+    <ClCompile Include="lib\AsyncPrinter.cpp" />
+    <ClCompile Include="lib\ESPAsyncTCP.cpp" />
+    <ClCompile Include="lib\ESPAsyncTCPbuffer.cpp" />
+    <ClCompile Include="lib\SyncClient.cpp" />
+    <ClCompile Include="lib\tcp_axtls.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\image.png">
+      <Filter>data</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\test.txt">
+      <Filter>data</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
