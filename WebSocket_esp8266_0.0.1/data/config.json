@@ -1,0 +1,8 @@
+﻿{
+  "request": "setting_user",
+  "key": "authKey",
+  "classify": "owner",
+  "type": "add",
+  "name": "Phạm trung hiếu",
+  "index": "1"
+}

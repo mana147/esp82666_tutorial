@@ -1,0 +1,8 @@
+﻿{
+	"KEY_CONFIG":
+	{
+	  "auth_key_config":"esp0001", 
+		"rf_key_config": "esp0001",
+		"id_key_cpnfig": "esp0001"
+	}
+}

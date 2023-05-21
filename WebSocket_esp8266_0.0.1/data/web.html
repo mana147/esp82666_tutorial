@@ -1,0 +1,299 @@
+﻿<HTML>
+
+<HEAD>
+    <META NAME="GENERATOR" Content="ESP8266">
+
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            font-family: Georgia, serif;
+        }
+
+        .tablink {
+            background-color: #555;
+            color: white;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 15px;
+            width: 33.3%;
+        }
+
+            .tablink:hover {
+                background-color: #777;
+            }
+
+        /* Style the tab content */
+        .tabcontent {
+            color: white;
+            display: none;
+            padding: 50px;
+            height: 100%;
+            text-align: center;
+        }
+
+        #Tab_1 {
+            background-color: #283346;
+        }
+
+        #Tab_2 {
+            background-color: #283346;
+        }
+
+        #Tab_3 {
+            background-color: #283346;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td,
+        tr {
+            text-align: left;
+            padding: 16px;
+            color: white;
+        }
+    </style>
+
+    <script language="javascript">
+        var Socket;
+
+        function init() {
+
+            //Socket = new WebSocket('ws://' + window.location.hostname + ':81');
+
+            Socket = new WebSocket("ws://echo.websocket.org/");
+
+            Socket.onopen = function (event) {
+                Socket.send("ok connected server");
+            }
+
+            Socket.onmessage = function (event) {
+
+                // document.getElementById("rxConsole").value += event.data;
+
+                let message = event.data;
+
+                let messageElem = document.createElement('div');
+
+                messageElem.textContent = message;
+
+                document.getElementById('messages').prepend(messageElem);
+
+            }
+
+        }
+
+        function sendText() {
+            Socket.send(document.getElementById("txBar").value);
+            document.getElementById("txBar").value = "";
+        }
+
+        function sendRange() {
+            Socket.send("#" + document.getElementById("send_range").value);
+        }
+        /*********************************************************************/
+        function Send_json_data() {
+            var stt, ma_hang, ten_san_pham, so_luong, gia_ban;
+
+            stt = document.getElementById("stt").value;
+
+            ma_hang = document.getElementById("ma_hang").value;
+
+            ten_san_pham = document.getElementById("ten_san_pham").value;
+
+            so_luong = document.getElementById("so_luong").value;
+
+            gia_ban = document.getElementById("gia_ban").value;
+
+
+            var myObj = {
+                stt: stt,
+                ma_hang: ma_hang,
+                ten_san_pham: ten_san_pham,
+                so_luong: so_luong,
+                gia_ban: gia_ban
+            };
+
+            var myJSON = JSON.stringify(myObj);
+
+            Socket.send(myJSON);
+
+
+        }
+
+
+        /*********************************************************************/
+
+        // Get the element with id="defaultOpen" and click on it
+
+        function defaultClick() {
+            document.getElementById("defaultOpen").click()
+        }
+
+        function openTAB(cityName, elmnt, color) {
+            var i, tabcontent, tablinks;
+
+            tabcontent = document.getElementsByClassName("tabcontent");
+
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            tablinks = document.getElementsByClassName("tablink");
+
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].style.backgroundColor = "";
+            }
+
+            document.getElementById(cityName).style.display = "block";
+            elmnt.style.backgroundColor = color;
+
+        }
+
+
+    </script>
+
+
+</HEAD>
+
+<body onload=" init() ; defaultClick() ">
+
+    <!-- *********************************************************************** -->
+
+    <button class="tablink" onclick="openTAB ('Tab_1' ,this, '#283346' )" id="defaultOpen">
+        <H3>Đăng nhập :</H3>
+    </button>
+
+    <button class="tablink" onclick="openTAB ('Tab_2', this, '#283346' )">
+        <h3>Nhập sản phẩm : </h3>
+    </button>
+
+    <button class="tablink" onclick="openTAB ('Tab_3', this, '#283346' )">
+        <h3> Test debug code client to server : </h3>
+    </button>
+
+    <!-- *********************************************************************** -->
+
+    <div id="Tab_1" class="tabcontent">
+        <div style="padding:20px;"></div>
+
+        <dir>
+            <h4>WEB Server ESP8266</h4>
+
+            <form>
+                ID : <input type="text" name="firstname" value="Tên đăng nhập">
+                PASS : <input type="password" name="lastname" value="11111111">
+                <br><br>
+                <input type="submit" value="Submit">
+                <input type="reset">
+            </form>
+
+        </dir>
+
+    </div>
+
+    <!-- *********************************************************************** -->
+
+    <div id="Tab_2" class="tabcontent">
+        <div style="padding:20px;"></div>
+
+        <div id="input_items">
+            <p>Nhập sản phẩm : </p>
+
+            STT: <input type="number" id="stt">
+            Mã hàng: <input type="text" id="ma_hang">
+            Tên sản phẩm: <input type="text" id="ten_san_pham">
+            Số lượng: <input type="number" id="so_luong">
+            Giá bán: <input type="number" id="gia_ban">
+            push data: <button type="button" onclick="Send_json_data()">Submit</button>
+
+            <div style="padding-top: 10px;">
+                <div id="messages"></div>
+            </div>
+
+            <!-- <input type="range" id="send_range" min="1" max="1023" value="0" oninput="sendRange()" class="slider"> -->
+            <!-- <input type="text" id="txBar" onkeydown="if(event.keyCode == 13) sendText(); "> -->
+
+        </div> <!-- end div input items-->
+
+        <div id="table_items">
+            <table>
+                <tr>
+                    <th>STT : </th>
+                    <th>MÃ SẢN PHẨM :</th>
+                    <th>TÊN SẢN PHẨM : </th>
+                    <th>SỐ LƯỢNG : </th>
+                    <th>GIÁ SẢN PHẨM : </th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>A1</td>
+                    <td>ÁO ĐỎ</td>
+                    <td>2</td>
+                    <td>20,000VND</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>A1</td>
+                    <td>ÁO ĐỎ</td>
+                    <td>2</td>
+                    <td>20,000VND</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>A1</td>
+                    <td>ÁO ĐỎ</td>
+                    <td>2</td>
+                    <td>20,000VND</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>A1</td>
+                    <td>ÁO ĐỎ</td>
+                    <td>2</td>
+                    <td>20,000VND</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>A1</td>
+                    <td>ÁO ĐỎ</td>
+                    <td>2</td>
+                    <td>20,000VND</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>A1</td>
+                    <td>ÁO ĐỎ</td>
+                    <td>2</td>
+                    <td>20,000VND</td>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+    <!-- *********************************************************************** -->
+
+    <div id="Tab_3" class="tabcontent">
+
+        <div style="padding:20px;"></div>
+
+
+    </div>
+
+    <!-- *********************************************************************** -->
+
+</body>
+
+</HTML>

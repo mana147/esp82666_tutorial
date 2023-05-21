@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style_app.css" >
+  <script language="javascript" src="js_app.js"></script>
+</head>
+
+<body>
+
+<h3>WEB APP</h3>
+
+<div class="tab">
+  <button class="tablinks" onclick="openCity(event, 'HOME_TAB')">HOME</button>
+  <button class="tablinks" onclick="openCity(event, 'KEY_TAB')">KEY</button>
+  <button class="tablinks" onclick="openCity(event, 'INFOR_TAB')">INFOR</button>
+</div>
+
+<div id="HOME_TAB" class="tabcontent">
+
+ <div id="myDIV" class="header">
+  <input type="text" id="myInput" placeholder="Title...">
+  <span onclick="newElement()" class="addBtn">ADD</span>
+ </div>
+ <ul id="myUL"> </ul>
+
+</div>
+
+<div id="KEY_TAB" class="tabcontent">
+  <p>QR Key:</p>
+  <input type="text" name="key" >
+  <p>SMART Key:</p>
+  <input type="text" name="key" >
+
+</div>
+
+<div id="INFOR_TAB" class="tabcontent">
+  <h3>INFOR_TAB</h3>
+</div>
+
+   
+</body>
+</html> 

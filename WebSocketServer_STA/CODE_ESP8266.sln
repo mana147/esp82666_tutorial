@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebSocketServer_STA", "WebSocketServer_STA\WebSocketServer_STA.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebSocketServer_softAP", "..\WebSocketServer_softAP\WebSocketServer_softAP.vcxproj", "{CFDC735C-74D0-4AC7-A4C5-5D50EC59E836}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebSocket Controlling RGB LEDs", "..\WebSocket Controlling RGB LEDs\WebSocket Controlling RGB LEDs.vcxproj", "{E904D73B-0C0B-473F-89E8-85E0304F36F3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebSocket_esp8266_0.0.1", "..\WebSocket_esp8266_0.0.1\WebSocket_esp8266_0.0.1.vcxproj", "{A896CF63-05CA-46EC-AA22-CD02A2402D0F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebSocket_esp8266_0.0.2", "..\WebSocket_esp8266_0.0.2\WebSocket_esp8266_0.0.2.vcxproj", "{B7F4D2BC-AC4C-48C7-B1C2-CF0A7A5A2390}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arduino_556274", "C:\Users\pi\Documents\Arduino\libraries\arduino_556274\arduino_556274.vcxitems", "{9F34E726-7881-4CD6-9947-454FA5070E51}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "websocket_esp8266_fw", "..\WebSocket_Client\websocket_esp8266_fw\websocket_esp8266_fw.vcxproj", "{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ESP_8266_TEST", "ESP_8266_TEST\ESP_8266_TEST.vcxproj", "{46DAB28B-A05E-4407-BFAA-7C86A8EB6CC0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_up_dow_file_from_esp", "..\test_up_dow_file_from_esp\test_up_dow_file_from_esp.vcxproj", "{EFA24D0E-5B21-4640-9BBA-7E530111B30D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{CFDC735C-74D0-4AC7-A4C5-5D50EC59E836}.Debug|x86.ActiveCfg = Debug|Win32
+		{CFDC735C-74D0-4AC7-A4C5-5D50EC59E836}.Debug|x86.Build.0 = Debug|Win32
+		{CFDC735C-74D0-4AC7-A4C5-5D50EC59E836}.Release|x86.ActiveCfg = Release|Win32
+		{CFDC735C-74D0-4AC7-A4C5-5D50EC59E836}.Release|x86.Build.0 = Release|Win32
+		{E904D73B-0C0B-473F-89E8-85E0304F36F3}.Debug|x86.ActiveCfg = Debug|Win32
+		{E904D73B-0C0B-473F-89E8-85E0304F36F3}.Debug|x86.Build.0 = Debug|Win32
+		{E904D73B-0C0B-473F-89E8-85E0304F36F3}.Release|x86.ActiveCfg = Release|Win32
+		{E904D73B-0C0B-473F-89E8-85E0304F36F3}.Release|x86.Build.0 = Release|Win32
+		{A896CF63-05CA-46EC-AA22-CD02A2402D0F}.Debug|x86.ActiveCfg = Debug|Win32
+		{A896CF63-05CA-46EC-AA22-CD02A2402D0F}.Debug|x86.Build.0 = Debug|Win32
+		{A896CF63-05CA-46EC-AA22-CD02A2402D0F}.Release|x86.ActiveCfg = Release|Win32
+		{A896CF63-05CA-46EC-AA22-CD02A2402D0F}.Release|x86.Build.0 = Release|Win32
+		{B7F4D2BC-AC4C-48C7-B1C2-CF0A7A5A2390}.Debug|x86.ActiveCfg = Debug|Win32
+		{B7F4D2BC-AC4C-48C7-B1C2-CF0A7A5A2390}.Debug|x86.Build.0 = Debug|Win32
+		{B7F4D2BC-AC4C-48C7-B1C2-CF0A7A5A2390}.Release|x86.ActiveCfg = Release|Win32
+		{B7F4D2BC-AC4C-48C7-B1C2-CF0A7A5A2390}.Release|x86.Build.0 = Release|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Debug|x86.ActiveCfg = Debug|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Debug|x86.Build.0 = Debug|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Release|x86.ActiveCfg = Release|Win32
+		{E0FE67BD-DF76-4C39-8AE4-0BA95B89F999}.Release|x86.Build.0 = Release|Win32
+		{46DAB28B-A05E-4407-BFAA-7C86A8EB6CC0}.Debug|x86.ActiveCfg = Debug|Win32
+		{46DAB28B-A05E-4407-BFAA-7C86A8EB6CC0}.Debug|x86.Build.0 = Debug|Win32
+		{46DAB28B-A05E-4407-BFAA-7C86A8EB6CC0}.Release|x86.ActiveCfg = Release|Win32
+		{46DAB28B-A05E-4407-BFAA-7C86A8EB6CC0}.Release|x86.Build.0 = Release|Win32
+		{EFA24D0E-5B21-4640-9BBA-7E530111B30D}.Debug|x86.ActiveCfg = Debug|Win32
+		{EFA24D0E-5B21-4640-9BBA-7E530111B30D}.Debug|x86.Build.0 = Debug|Win32
+		{EFA24D0E-5B21-4640-9BBA-7E530111B30D}.Release|x86.ActiveCfg = Release|Win32
+		{EFA24D0E-5B21-4640-9BBA-7E530111B30D}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C4210FA6-FD16-467D-9AB8-ADF3B726E91E}
+	EndGlobalSection
+EndGlobal
