@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <Arduino_JSON.h>
+#include <ESP8266WebServer.h>
+#include <DNSServer.h>
+#include "FS.h"
 
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
@@ -13,24 +17,38 @@
 	Serial.print((n)); \
 	Serial.println((x));
 
-#define ESP_NAME "esp_8266"
-
+#define ESP_NAME "esp_8266_nodeMCU"
 const int mqttPort = 1883;
-const char *c_TOPIC = "control-light/esp8266-led-1";
+const char *c_TOPIC = "control-light/esp8266-led-2";
 // const char *ssid = "VCCorp";
 // const char *password = "Vcc123**";
-const char *ssid = "HONGDO17_303";
-const char *password = "123456789";
+String ssid = "HONGDO17_303";
+String password = "123456789";
 const char *mqttServer = "mqtt.bctoyz.com";
 const char *mqttUser = "testled";
 const char *mqttPassword = "testled123";
 
+const char *c_PATH_FILE_TXT = "/data.json";
+const char *htmlfile_config = "/config.html";
+const char *jsfile_jquery = "/jquery.min.js";
+
 uint16_t u16t_MQTT_PACKET_SIZE = 2048;
 
+ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient clientMQTT(espClient);
+DNSServer dnsServer;
 
 uint8_t numb = 0;
+
+IPAddress local_IP(192, 168, 4, 99); //  IP tĩnh muốn gán cho module
+IPAddress gateway(192, 168, 4, 99);	 //  IP của gateway (thường là router) để kết nối ra mạng bên ngoài
+IPAddress subnet(255, 255, 255, 0);	 //  subnet xác định phạm vi IP của mạng nội bộ
+
+const char *ssidWifi = "ESP8266"; // ten wifi phát ra
+const char *passwordWifi = "123456789";
+const char *HostName = "esp.com";
+const byte DNS_PORT = 53;
 
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
@@ -41,6 +59,54 @@ String int_to_string(int x)
 	char buffer[100];
 	sprintf(buffer, "%d", x);
 	return buffer;
+}
+
+String read_files_in_SPIFFS(String string)
+{
+	String str;
+	File data_files;
+	data_files = SPIFFS.open(string, "r");
+	if (data_files)
+	{
+		while (data_files.available())
+		{
+			str = data_files.readString();
+			data_files.flush();
+		}
+		data_files.close();
+	}
+	return str;
+}
+
+void handle_data_json(String payload)
+{
+	JSONVar myObject = JSON.parse(payload);
+
+	if (JSON.typeof(myObject) == "undefined")
+	{
+		Serial.println("Parsing input failed!");
+		return;
+	}
+}
+
+int write_files_in_SPIFFS(String string, String path)
+{
+	int key;
+	File data_flies;
+	data_flies = SPIFFS.open(path, "w");
+	if (data_flies)
+	{
+		data_flies.print(string);
+		data_flies.flush();
+		key = 1;
+	}
+	else
+	{
+		key = 0;
+	}
+
+	data_flies.close();
+	return key;
 }
 
 void setup_wifi()
@@ -101,7 +167,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
 	if ((char)payload[2] == '1')
 	{
-		clientMQTT.publish(c_TOPIC, "ok esp8266");
+		clientMQTT.publish(c_TOPIC, "status: 1");
 	}
 }
 
@@ -127,25 +193,82 @@ void connectMQTT()
 	delay(50);
 }
 
+void load_web()
+{
+	String str_html = read_files_in_SPIFFS(htmlfile_config);
+	server.send(200, "text/html", str_html);
+}
+
+void load_jquery()
+{
+	String str_html = read_files_in_SPIFFS(jsfile_jquery);
+	server.send(200, "text/javascript", str_html);
+}
+
+
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
+#define ON 0
+#define OFF 1
+int buttonState = 0;
 
 void setup()
 {
 	// init serial baud 115200
 	Serial.begin(115200);
-	delay(500);
-
-	Serial.println();
-	Serial.println("Publish message: ");
-
-	// setup wifi
-	setup_wifi();
+	// init SPIFFS
+	SPIFFS.begin();
+	// server web esp8266
+	server.begin();
 
 	// init pin out
-	pinMode(LED_BUILTIN, OUTPUT);
-	pinMode(D2, OUTPUT);
+	pinMode(D9, OUTPUT);
+	pinMode(D4, INPUT);
+
+	digitalWrite(D9, OFF);
+
+	buttonState = digitalRead(D4);
+	if (buttonState == 0)
+	{
+		DEBUG_1("chế độ config");
+		WiFi.softAPConfig(local_IP, gateway, subnet);
+		WiFi.softAP(ssidWifi, passwordWifi);
+
+		dnsServer.setTTL(10);
+		dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+		dnsServer.start(DNS_PORT, HostName, local_IP);
+
+		server.on("/", HTTP_GET, load_web);
+		server.on("/jquery.min.js", HTTP_GET, load_jquery);
+		
+	}
+	else if (buttonState == 1)
+	{
+		DEBUG_1("chế độ WIFI");
+		DEBUG_1("> get list data beacon from SPIFFS");
+
+		String data_txt = read_files_in_SPIFFS(c_PATH_FILE_TXT);
+		JSONVar myObject = JSON.parse(data_txt);
+		if (JSON.typeof(myObject) == "undefined")
+		{
+			Serial.println("Parsing input failed!");
+			return;
+		}
+
+		String ESP_NAME_ = myObject["ESP_NAME"];
+		String TOPIC_ = myObject["TOPIC"];
+		String ssid_ = myObject["ssid"];
+		String password_ = myObject["password"];
+		String mqttPort_ = myObject["mqttPort"];
+
+		ssid = ssid_;
+		password = password_;
+
+		// setup wifi
+		DEBUG_1("setup wifi");
+		setup_wifi();
+	}
 
 	// delay
 	delay(100);
@@ -157,23 +280,31 @@ void setup()
 
 void loop()
 {
-
-	while (!clientMQTT.connected())
+	if (buttonState == 0)
 	{
-		connectMQTT();
+		dnsServer.processNextRequest();
+		server.handleClient();
 	}
+	else if (buttonState == 1)
+	{
 
-	// if (WiFi.status() == WL_CONNECTED && clientMQTT.connected())
-	// {
-	// 	// numb++;
-	// 	// String data = int_to_string(numb);
-	// 	// bool resultMQTT = clientMQTT.publish(c_TOPIC, "ok esp8266");
-	// 	// Serial.print("MQTT Result: ");
-	// 	// Serial.println(numb);
-	// }
+		while (!clientMQTT.connected())
+		{
+			connectMQTT();
+		}
 
-	clientMQTT.loop();
-	delay(100);
+		// if (WiFi.status() == WL_CONNECTED && clientMQTT.connected())
+		// {
+		// 	// numb++;
+		// 	// String data = int_to_string(numb);
+		// 	// bool resultMQTT = clientMQTT.publish(c_TOPIC, "ok esp8266");
+		// 	// Serial.print("MQTT Result: ");
+		// 	// Serial.println(numb);
+		// }
+
+		clientMQTT.loop();
+		delay(100);
+	}
 }
 
 // -------------------------------------------------------------------

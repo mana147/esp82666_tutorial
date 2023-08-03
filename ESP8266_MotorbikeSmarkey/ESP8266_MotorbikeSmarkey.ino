@@ -44,7 +44,6 @@ String request_from_clienst;
 //const char *ssid = "Motorbike_SMARTKEY";          // ten wifi phát ra
 
 const char *ssid = "SMARTKEY";          // ten wifi phát ra
-
 const char *password = "123456789";	
 
 const char *HostName = "khoavantayxemay.com";

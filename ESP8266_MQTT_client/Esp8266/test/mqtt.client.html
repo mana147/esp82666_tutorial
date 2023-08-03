@@ -35,14 +35,15 @@
 
 	<script>
 		const url = 'ws://mqtt.bctoyz.com:1884/mqtt';
-		const topic = 'control-light/esp8266-led-1';
+		const topic = 'control-light/esp8266-led-2';
+		const timeDate = new Date().getTime();
 
 		const options = {
 			// Clean session
 			clean: true,
 			connectTimeout: 4000,
 			// Authentication
-			clientId: 'client_mqtt_01',
+			clientId: 'client_mqtt_01' + timeDate,
 			username: 'testled',
 			password: 'testled123',
 		}
@@ -60,20 +61,25 @@
 			})
 		})
 
+		client.on('message', function (topic, message) {
+			// message is Buffer
+			console.log(message.toString());
+		})
+
+
 		$("#toggleSwitch").click(function () {
 			var mainParent = $(this).parent('.form-check');
-
 			if ($(mainParent).find('input.form-check-input').is(':checked')) {
-				console.log('object :>> 1');
 				client.publish(topic, '0')
 			} else {
 				client.publish(topic, '1')
 			}
-
 		});
 
 
-
+		setInterval(function () {
+			var d = new Date();
+		}, 1000);
 
 
 	</script>
