@@ -3,11 +3,9 @@
     "TOPIC": "control-light/esp8266-led-2",
     "ssid": "VCCorp",
     "password": "Vcc123**",
-    "mqttPort": "1883",
+    "mqttPort" : 1883,
     "mqttServer": "mqtt.bctoyz.com",
     "mqttUser": "testled",
     "mqttPassword": "testled123",
-    "pinout1": "1",
-    "pinout2": "2",
-    "pinout3": "3"
+    "pinout1" :  2
 }

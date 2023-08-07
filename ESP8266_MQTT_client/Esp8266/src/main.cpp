@@ -4,7 +4,9 @@
 #include <Arduino_JSON.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
+#include <string.h>
 #include "FS.h"
+#include "confightml.h"
 
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
@@ -17,20 +19,31 @@
 	Serial.print((n)); \
 	Serial.println((x));
 
-#define ESP_NAME "esp_8266_nodeMCU"
-const int mqttPort = 1883;
-const char *c_TOPIC = "control-light/esp8266-led-2";
+#define ON 0
+#define OFF 1
+int buttonState = 0;
+
+#define pin_input_01 16
+#define pin_BUILTIN_LED 2
+#define pin_out_1 2
+#define pin_out_2 3
+
+String ESP_NAME = "esp_8266";
+String mqttPort = "1883";
+String c_TOPIC = "control-light/esp8266-led-2";
+
 // const char *ssid = "VCCorp";
 // const char *password = "Vcc123**";
+
 String ssid = "HONGDO17_303";
 String password = "123456789";
-const char *mqttServer = "mqtt.bctoyz.com";
-const char *mqttUser = "testled";
-const char *mqttPassword = "testled123";
+String mqttServer = "mqtt.bctoyz.com";
+String mqttUser = "testled";
+String mqttPassword = "testled123";
 
-const char *c_PATH_FILE_TXT = "/data.json";
+const char *data_json = "/data.json";
 const char *htmlfile_config = "/config.html";
-const char *jsfile_jquery = "/jquery.min.js";
+const char *jsfile_jquery = "/jquery.js";
 
 uint16_t u16t_MQTT_PACKET_SIZE = 2048;
 
@@ -50,9 +63,32 @@ const char *passwordWifi = "123456789";
 const char *HostName = "esp.com";
 const byte DNS_PORT = 53;
 
+// uint8_t *buf = new uint8_t[jquery_js_len];
+
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
+
+// format bytes
+String formatBytes(size_t bytes)
+{
+	if (bytes < 1024)
+	{
+		return String(bytes) + "B";
+	}
+	else if (bytes < (1024 * 1024))
+	{
+		return String(bytes / 1024.0) + "KB";
+	}
+	else if (bytes < (1024 * 1024 * 1024))
+	{
+		return String(bytes / 1024.0 / 1024.0) + "MB";
+	}
+	else
+	{
+		return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
+	}
+}
 
 String int_to_string(int x)
 {
@@ -109,20 +145,23 @@ int write_files_in_SPIFFS(String string, String path)
 	return key;
 }
 
-void setup_wifi()
+void setup_wifi(String ssid_, String password_)
 {
 	delay(10);
 	// We start by connecting to a WiFi network
 	Serial.println();
 	Serial.print("Connecting to ");
-	Serial.println(ssid);
+	Serial.println(ssid_);
 
 	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
+	WiFi.begin(ssid_, password_);
 
 	while (WiFi.status() != WL_CONNECTED)
 	{
-		delay(500);
+		digitalWrite(pin_BUILTIN_LED, HIGH);
+		delay(100);
+		digitalWrite(pin_BUILTIN_LED, LOW);
+		delay(100);
 		Serial.print(".");
 	}
 
@@ -167,22 +206,22 @@ void callback(char *topic, byte *payload, unsigned int length)
 
 	if ((char)payload[2] == '1')
 	{
-		clientMQTT.publish(c_TOPIC, "status: 1");
+		clientMQTT.publish(c_TOPIC.c_str(), "status: 1");
 	}
 }
 
 void connectMQTT()
 {
-	clientMQTT.setServer(mqttServer, mqttPort);
+	clientMQTT.setServer(mqttServer.c_str(), mqttPort.toInt());
 	clientMQTT.setBufferSize(u16t_MQTT_PACKET_SIZE);
 	clientMQTT.setCallback(callback);
 
 	Serial.print("Connecting to MQTT...");
 
-	if (clientMQTT.connect(ESP_NAME, mqttUser, mqttPassword))
+	if (clientMQTT.connect(ESP_NAME.c_str(), mqttUser.c_str(), mqttPassword.c_str()))
 	{
 		Serial.println("connected");
-		clientMQTT.subscribe(c_TOPIC);
+		clientMQTT.subscribe(c_TOPIC.c_str());
 	}
 	else
 	{
@@ -193,42 +232,208 @@ void connectMQTT()
 	delay(50);
 }
 
-void load_web()
+// -----------------------------------------------
+void root_page()
 {
-	String str_html = read_files_in_SPIFFS(htmlfile_config);
-	server.send(200, "text/html", str_html);
+	DEBUG_1("> load_web");
+
+	String dataType = "text/html";
+
+	if (SPIFFS.exists(htmlfile_config))
+	{
+		File dataFile = SPIFFS.open(htmlfile_config, "r");
+		if (!dataFile)
+		{
+			DEBUG_1(" read dataFile false !");
+			return;
+		}
+		if (server.streamFile(dataFile, dataType) != dataFile.size())
+		{
+			DEBUG_1("Sent less data than expected!");
+		}
+		else
+		{
+			DEBUG_1("Page served!");
+		}
+
+		dataFile.close();
+	}
+	else
+	{
+		DEBUG_1("SPIFFS false")
+		return;
+	}
+	DEBUG_1("done");
 }
 
-void load_jquery()
+void jqueryjs()
 {
-	String str_html = read_files_in_SPIFFS(jsfile_jquery);
-	server.send(200, "text/javascript", str_html);
+	DEBUG_1("> load_jquery");
+	String dataType = "text/javascript";
+
+	if (SPIFFS.exists(jsfile_jquery))
+	{
+		File dataFile = SPIFFS.open(jsfile_jquery, "r");
+		if (!dataFile)
+		{
+			DEBUG_1(" read dataFile false !");
+			return;
+		}
+
+		if (server.streamFile(dataFile, dataType) != dataFile.size())
+		{
+			DEBUG_1("Sent less data than expected!");
+		}
+		else
+		{
+			DEBUG_1("Page served!");
+		}
+
+		dataFile.close();
+	}
+	else
+	{
+		DEBUG_1("SPIFFS false")
+		return;
+	}
+	DEBUG_1("done");
 }
 
+void load_jquery_b()
+{
+	DEBUG_1("> load_jquery");
+	String dataType = "text/javascript";
+	// server.sendHeader(F("Content-Encoding"), F("gzip"));
+	// server.send(200, "text/javascript", (const char *)jquery_js);
+	// DEBUG_1(size);
+}
+
+void getdatajson()
+{
+	DEBUG_1("> load_web");
+
+	String dataType = "application/json";
+
+	if (SPIFFS.exists(data_json))
+	{
+		File dataFile = SPIFFS.open(data_json, "r");
+		if (!dataFile)
+		{
+			DEBUG_1(" read dataFile false !");
+			return;
+		}
+		if (server.streamFile(dataFile, dataType) != dataFile.size())
+		{
+			DEBUG_1("Sent less data than expected!");
+		}
+		else
+		{
+			DEBUG_1("Page served!");
+		}
+
+		dataFile.close();
+	}
+	else
+	{
+		DEBUG_1("SPIFFS false")
+		return;
+	}
+	DEBUG_1("done");
+}
+
+void postdatajson()
+{
+	if (server.method() != HTTP_POST)
+	{
+		server.send(405, "text/plain", "Method Not Allowed");
+	}
+	else
+	{
+		String arg_ESP_NAME = server.arg("ESP_NAME");
+		String arg_TOPIC = server.arg("TOPIC");
+		String arg_ssid = server.arg("ssid");
+		String arg_password = server.arg("password");
+		String arg_mqttPort = server.arg("mqttPort");
+		String arg_mqttServer = server.arg("mqttServer");
+		String arg_mqttUser = server.arg("mqttUser");
+		String arg_mqttPassword = server.arg("mqttPassword");
+		String arg_pinout1 = server.arg("pinout1");
+		String arg_pinout2 = server.arg("pinout2");
+		String arg_pinout3 = server.arg("pinout3");
+
+		// tạo một cấu trúc JSON
+		String json_ = "{\n";
+		json_ += "\"ESP_NAME\": \"" + arg_ESP_NAME + "\",\n";
+		json_ += "\"TOPIC\": \"" + arg_TOPIC + "\",\n";
+		json_ += "\"ssid\": \"" + arg_ssid + "\",\n";
+		json_ += "\"password\": \"" + arg_password + "\",\n";
+		json_ += "\"mqttPort\" : " + arg_mqttPort + ",\n";
+		json_ += "\"mqttServer\": \"" + arg_mqttServer + "\",\n";
+		json_ += "\"mqttUser\": \"" + arg_mqttUser + "\",\n";
+		json_ += "\"mqttPassword\": \"" + arg_mqttPassword + "\",\n";
+		json_ += "\"pinout1\" : \"" + arg_pinout1 + "\",\n";
+		json_ += "\"pinout2\" : \"" + arg_pinout2 + "\",\n";
+		json_ += "\"pinout3\" : \"" + arg_pinout3 + "\"\n";
+		json_ += "}";
+
+		DEBUG_1(json_);
+
+		int write_data = write_files_in_SPIFFS(json_, data_json);
+
+		server.send(200, "text/plain", (String)write_data);
+	}
+}
 
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
-#define ON 0
-#define OFF 1
-int buttonState = 0;
 
 void setup()
 {
 	// init serial baud 115200
 	Serial.begin(115200);
+	DEBUG_1("");
+	DEBUG_1("");
+
 	// init SPIFFS
 	SPIFFS.begin();
-	// server web esp8266
-	server.begin();
+	// get info SPIFFS
+
+	Dir dir = SPIFFS.openDir("/");
+	while (dir.next())
+	{
+		String fileName = dir.fileName();
+		size_t fileSize = dir.fileSize();
+		Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+	}
+	Serial.printf("\n");
 
 	// init pin out
-	pinMode(D9, OUTPUT);
-	pinMode(D4, INPUT);
+	pinMode(pin_BUILTIN_LED, OUTPUT);
+	pinMode(D3, OUTPUT);
+	pinMode(D4, OUTPUT);
 
-	digitalWrite(D9, OFF);
+	// off led
+	digitalWrite(pin_BUILTIN_LED, OFF);
+	digitalWrite(D3, OFF);
+	digitalWrite(D4, OFF);
 
-	buttonState = digitalRead(D4);
+	// while (1)
+	// {
+	// 	digitalWrite(D4, ON);
+	// 	digitalWrite(D3, ON);
+	// 	digitalWrite(pin_BUILTIN_LED, ON);
+	// 	delay(500);
+
+	// 	digitalWrite(D4, OFF);
+	// 	digitalWrite(D3, OFF);
+	// 	digitalWrite(pin_BUILTIN_LED, OFF);
+	// 	delay(500);
+	// }
+
+	// pin button setup option config
+	pinMode(pin_input_01, INPUT);
+	buttonState = digitalRead(pin_input_01);
 	if (buttonState == 0)
 	{
 		DEBUG_1("chế độ config");
@@ -239,16 +444,23 @@ void setup()
 		dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
 		dnsServer.start(DNS_PORT, HostName, local_IP);
 
-		server.on("/", HTTP_GET, load_web);
-		server.on("/jquery.min.js", HTTP_GET, load_jquery);
-		
+		server.on("/", HTTP_GET, root_page);
+		server.on("/jquery.js", HTTP_GET, jqueryjs);
+		server.on("/getdatajson", HTTP_GET, getdatajson);
+		server.on("/postdatajson", HTTP_POST, postdatajson);
+
+		// server.on("/jquery.js", HTTP_GET, load_jquery_b);
+		// server web esp8266
+
+		server.enableCORS(true);
+		server.begin();
 	}
 	else if (buttonState == 1)
 	{
-		DEBUG_1("chế độ WIFI");
-		DEBUG_1("> get list data beacon from SPIFFS");
+		DEBUG_1("chế độ MQTT");
 
-		String data_txt = read_files_in_SPIFFS(c_PATH_FILE_TXT);
+		String data_txt = read_files_in_SPIFFS(data_json);
+
 		JSONVar myObject = JSON.parse(data_txt);
 		if (JSON.typeof(myObject) == "undefined")
 		{
@@ -262,12 +474,21 @@ void setup()
 		String password_ = myObject["password"];
 		String mqttPort_ = myObject["mqttPort"];
 
+		String mqttServer_ = myObject["mqttServer"];
+		String mqttUser_ = myObject["mqttUser"];
+		String mqttPassword_ = myObject["mqttPassword"];
+
+		ESP_NAME = ESP_NAME_;
+		c_TOPIC = TOPIC_;
 		ssid = ssid_;
 		password = password_;
+		mqttServer = mqttServer_;
+		mqttUser = mqttUser_;
+		mqttPassword = mqttPassword_;
 
 		// setup wifi
 		DEBUG_1("setup wifi");
-		setup_wifi();
+		setup_wifi(ssid_, password_);
 	}
 
 	// delay
@@ -306,7 +527,3 @@ void loop()
 		delay(100);
 	}
 }
-
-// -------------------------------------------------------------------
-// -------------------------------------------------------------------
-// -------------------------------------------------------------------

@@ -2,24 +2,152 @@
 <html>
 
 <head>
-    <script src="/jquery.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $("button").click(function () {
-                $("p").hide();
-            });
-        });
-    </script>
+    <script src="/jquery.js"></script>
 </head>
 
 <body>
 
-    <h2>This is a heading</h2>
+    <style>
+        /* Make the form responsive */
+        form {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
 
-    <p>This is a paragraph.</p>
-    <p>This is another paragraph.</p>
+        /* Align the labels and inputs */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
 
-    <button>Click me</button>
+        /* Style the inputs */
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        /* Style the submit button */
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #000;
+            color: #fff;
+        }
+    </style>
+
+
+    <h3 style=" display: flex; justify-content: center;">Esp8266 config</h3>
+
+    <form>
+        <label for="ESP_NAME">ESP_NAME</label>
+        <input type="text" id="ESP_NAME" placeholder="ESP_NAME" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="TOPIC">TOPIC</label>
+        <input type="text" id="TOPIC" placeholder="TOPIC" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="ssid">ssid</label>
+        <input type="text" id="ssid" placeholder="ssid" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="password">password</label>
+        <input type="password" id="password" placeholder="password" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="mqttPort">mqttPort</label>
+        <input type="number" id="mqttPort" placeholder="mqttPort" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="mqttServer">mqttServer</label>
+        <input type="text" id="mqttServer" placeholder="mqttServer" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="mqttUser">mqttUser</label>
+        <input type="text" id="mqttUser" placeholder="mqttUser" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="mqttPassword">mqttPassword</label>
+        <input type="password" id="mqttPassword" placeholder="mqttPassword" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="pinout1">pinout1</label>
+        <input type="number" id="pinout1" placeholder="pinout1" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="pinout2">pinout2</label>
+        <input type="number" id="pinout2" placeholder="pinout2" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <label for="pinout3">pinout3</label>
+        <input type="number" id="pinout3" placeholder="pinout3" value="N/A"
+            style="background-color: #ccc; color: #000; padding: 10px;">
+        <br>
+
+        <br>
+        <br>
+    </form>
+
+    <button id="submit">submit</button>
+
+    <script>
+        $(document).ready(function () {
+
+            $.get("/getdatajson", function (data) {
+                $("#ESP_NAME").val(data.ESP_NAME);
+                $("#TOPIC").val(data.TOPIC);
+                $("#ssid").val(data.ssid);
+                $("#password").val(data.password);
+                $("#mqttPort").val(data.mqttPort);
+                $("#mqttServer").val(data.mqttServer);
+                $("#mqttUser").val(data.mqttUser);
+                $("#mqttPassword").val(data.mqttPassword);
+                $("#pinout1").val(data.pinout1);
+                $("#pinout2").val(data.pinout2);
+                $("#pinout3").val(data.pinout3);
+                alert("load data done");
+            })
+
+            // When the submit button is clicked, post the form data to the server
+            $("#submit").click(function () {
+                var data = {
+                    ESP_NAME: $("#ESP_NAME").val(),
+                    TOPIC: $("#TOPIC").val(),
+                    ssid: $("#ssid").val(),
+                    password: $("#password").val(),
+                    mqttPort: $("#mqttPort").val(),
+                    mqttServer: $("#mqttServer").val(),
+                    mqttUser: $("#mqttUser").val(),
+                    mqttPassword: $("#mqttPassword").val(),
+                    pinout1: $("#pinout1").val(),
+                    pinout2: $("#pinout2").val(),
+                    pinout3: $("#pinout3").val(),
+                };
+
+                $.post("/postdatajson", data, function (data, status) {
+                    if (data == 1) {
+                        alert("done");
+                        location.reload();
+                    } else {
+                        alert("error");
+                    }
+                });
+            });
+        });
+    </script>
+
 
 </body>
 
