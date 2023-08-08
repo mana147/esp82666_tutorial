@@ -12,17 +12,25 @@
 <body>
 
 
-	<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+	<div class="container d-flex justify-content-center align-items-center"
+		style="height: 100vh; flex-direction: column;">
 		<div class="form-check form-switch">
-			<input class="form-check-input" type="checkbox" id="toggleSwitch">
-			<label class="form-check-label" for="toggleSwitch" id="btSwitch">Switch on / off</label>
+			<input class="form-check-input toggleSwitch" type="checkbox" id="check1">
+			<label class="form-check-label" for="toggleSwitch" id="bt1"> Button 1 : on / off</label>
 		</div>
 
-		<!-- <div>
-			<input class="btn btn-primary" type="reset" value="Reset">
-			<label class="form-check-label" for="toggleSwitch" id="btSwitch">Restart</label>
-		</div> -->
+		<div class="form-check form-switch">
+			<input class="form-check-input toggleSwitch" type="checkbox" id="check2">
+			<label class="form-check-label" for="toggleSwitch" id="bt2">Button 2 : on / off</label>
+		</div>
+
+		<div class="form-check form-switch">
+			<input class="form-check-input toggleSwitch" type="checkbox" id="check3">
+			<label class="form-check-label" for="toggleSwitch" id="bt3">Button 3 : on / off</label>
+		</div>
 	</div>
+
+
 
 
 	<!-- Bao gồm các tệp JavaScript của Bootstrap -->
@@ -36,6 +44,7 @@
 	<script>
 		const url = 'ws://mqtt.bctoyz.com:1884/mqtt';
 		const topic = 'control-light/esp8266-led-2';
+		const topic_status = 'control-light/esp8266-led-2-status';
 		const timeDate = new Date().getTime();
 
 		const options = {
@@ -49,37 +58,69 @@
 		}
 		const client = mqtt.connect(url, options)
 
-		console.log('client :>> ', client);
-
 		client.on('connect', function () {
 			console.log('Connected')
 			// Subscribe to a topic
 			client.subscribe(topic, function (err) {
-				if (!err) {
-					client.publish(topic, '0')
+				if (err) {
+					console.log('error :>> ', err);
 				}
 			})
+
+			client.subscribe(topic_status, function (err) {
+				if (err) {
+					console.log('error :>> ', err);
+				}
+			})
+
 		})
 
+
+		let time_current = "0";
 		client.on('message', function (topic, message) {
 			// message is Buffer
-			console.log(message.toString());
+			//console.log('topic :>> ', topic);
+			if (topic == topic_status) {
+				time_current = message.toString();
+			}
 		})
 
 
-		$("#toggleSwitch").click(function () {
-			var mainParent = $(this).parent('.form-check');
-			if ($(mainParent).find('input.form-check-input').is(':checked')) {
-				client.publish(topic, '0')
-			} else {
-				client.publish(topic, '1')
+		// task send
+		setInterval(function () {
+			client.publish(topic_status, '1');
+		}, 1000);
+		// task check
+		setInterval(function () {
+			if (time_current == 1) {
+				$(".toggleSwitch").prop("checked", false);
 			}
+		}, 1000);
+
+		// $(".toggleSwitch").prop("checked", false);
+		//-----------------------------------------------
+		$(".toggleSwitch").click(function () {
+
+			function removeCommas(data) {
+				return data.replace(/,/g, "");
+			}
+
+			let data = [0, 0, 0];
+
+			$('input:checkbox.toggleSwitch').each(function (index) {
+				data[index] = (this.checked ? 1 : 0);
+			});
+
+			let msg = "_" + removeCommas(data.toString());
+
+			client.publish(topic, msg)
+
+			return;
 		});
 
 
-		setInterval(function () {
-			var d = new Date();
-		}, 1000);
+
+		//-----------------------------------------------
 
 
 	</script>

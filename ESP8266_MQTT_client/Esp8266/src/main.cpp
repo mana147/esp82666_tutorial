@@ -28,18 +28,27 @@ int buttonState = 0;
 #define pin_out_1 2
 #define pin_out_2 3
 
-String ESP_NAME = "esp_8266";
-String mqttPort = "1883";
-String c_TOPIC = "control-light/esp8266-led-2";
+// String ESP_NAME = "esp_8266";
+// String mqttPort = "1883";
+// String c_TOPIC = "control-light/esp8266-led-2";
+// String ssid = "HONGDO17_303";
+// String password = "123456789";
+// String mqttServer = "mqtt.bctoyz.com";
+// String mqttUser = "testled";
+// String mqttPassword = "testled123";
 
-// const char *ssid = "VCCorp";
-// const char *password = "Vcc123**";
+String ESP_NAME = "";
+String mqttPort = "";
+String c_TOPIC = "";
+String ssid = "";
+String password = "";
+String mqttServer = "";
+String mqttUser = "";
+String mqttPassword = "";
 
-String ssid = "HONGDO17_303";
-String password = "123456789";
-String mqttServer = "mqtt.bctoyz.com";
-String mqttUser = "testled";
-String mqttPassword = "testled123";
+int pinout1 = 0;
+int pinout2 = 0;
+int pinout3 = 0;
 
 const char *data_json = "/data.json";
 const char *htmlfile_config = "/config.html";
@@ -177,51 +186,102 @@ void callback(char *topic, byte *payload, unsigned int length)
 {
 	DEBUG_2("subscribe topic : ", topic);
 
-	for (unsigned int i = 0; i < length; i++)
+	// ------------------------------------------------------------
+	if (String(topic) == c_TOPIC)
 	{
-		Serial.print((char)payload[i]);
-	}
-	Serial.println();
+		DEBUG_1(topic);
+		// ----------------------------------------
 
-	// Switch on the LED if an 1 was received as first character
-	if ((char)payload[0] == '1')
-	{
-		Serial.println("HIGHT");
-		digitalWrite(LED_BUILTIN, HIGH);
-		digitalWrite(D2, HIGH);
-	}
-	else if ((char)payload[0] == '0')
-	{
-		Serial.println("LOW");
-		digitalWrite(LED_BUILTIN, LOW);
-		digitalWrite(D2, LOW);
+		Serial.print("payload : ");
+		for (unsigned int i = 0; i < length; i++)
+		{
+			Serial.print((char)payload[i]);
+		}
+		Serial.println("");
+		// ----------------------------------------
+		// Switch on the LED if an 1 was received as first character
+		if ((char)payload[1] == '1')
+		{
+			DEBUG_2("pinout1 : ", pinout1);
+			digitalWrite(pinout1, ON);
+		}
+		else if ((char)payload[1] == '0')
+		{
+			DEBUG_2("pinout1 : ", pinout1);
+			digitalWrite(pinout1, OFF);
+		}
+		// ----------------------------------------
+		if ((char)payload[2] == '1')
+		{
+			DEBUG_2("pinout2 : ", pinout2);
+			digitalWrite(pinout2, ON);
+		}
+		else if ((char)payload[2] == '0')
+		{
+			DEBUG_2("pinout2 : ", pinout2);
+			digitalWrite(pinout2, OFF);
+		}
+		// ----------------------------------------
+		if ((char)payload[3] == '1')
+		{
+			DEBUG_2("pinout3 : ", pinout3);
+			digitalWrite(pinout3, ON);
+		}
+		else if ((char)payload[3] == '0')
+		{
+			DEBUG_2("pinout3 : ", pinout3);
+			digitalWrite(pinout3, OFF);
+		}
 	}
 
-	if ((char)payload[1] == '1')
-	{
-		Serial.println("restart");
-		delay(50);
-		ESP.restart();
-	}
+	// ------------------------------------------------------------
 
-	if ((char)payload[2] == '1')
+	String s_topic_status = c_TOPIC + "-status";
+
+	if (String(topic) == s_topic_status)
 	{
-		clientMQTT.publish(c_TOPIC.c_str(), "status: 1");
+		// Serial.print("payload : ");
+		// for (unsigned int i = 0; i < length; i++)
+		// {
+		// 	Serial.print((char)payload[i]);
+		// }
+		// Serial.println("");
+
+		if ((char)payload[0] == '1')
+		{
+			String ts = String(millis());
+			clientMQTT.publish(s_topic_status.c_str(), ts.c_str());
+		}
+		if ((char)payload[0] == '0')
+		{
+			Serial.println("restart");
+			delay(50);
+			ESP.restart();
+		}
 	}
 }
 
 void connectMQTT()
 {
+	DEBUG_2("mqttServer : ", mqttServer);
+	DEBUG_2("mqttPort : ", mqttPort);
+
 	clientMQTT.setServer(mqttServer.c_str(), mqttPort.toInt());
 	clientMQTT.setBufferSize(u16t_MQTT_PACKET_SIZE);
 	clientMQTT.setCallback(callback);
 
 	Serial.print("Connecting to MQTT...");
 
+	DEBUG_2("ESP_NAME : ", ESP_NAME.c_str());
+	DEBUG_2("mqttUser : ", mqttUser.c_str());
+	DEBUG_2("mqttPassword : ", mqttPassword.c_str());
+
 	if (clientMQTT.connect(ESP_NAME.c_str(), mqttUser.c_str(), mqttPassword.c_str()))
 	{
 		Serial.println("connected");
 		clientMQTT.subscribe(c_TOPIC.c_str());
+		String s_topic_status = c_TOPIC + "-status";
+		clientMQTT.subscribe(s_topic_status.c_str());
 	}
 	else
 	{
@@ -367,7 +427,7 @@ void postdatajson()
 		json_ += "\"TOPIC\": \"" + arg_TOPIC + "\",\n";
 		json_ += "\"ssid\": \"" + arg_ssid + "\",\n";
 		json_ += "\"password\": \"" + arg_password + "\",\n";
-		json_ += "\"mqttPort\" : " + arg_mqttPort + ",\n";
+		json_ += "\"mqttPort\" : \"" + arg_mqttPort + "\",\n";
 		json_ += "\"mqttServer\": \"" + arg_mqttServer + "\",\n";
 		json_ += "\"mqttUser\": \"" + arg_mqttUser + "\",\n";
 		json_ += "\"mqttPassword\": \"" + arg_mqttPassword + "\",\n";
@@ -408,28 +468,7 @@ void setup()
 	}
 	Serial.printf("\n");
 
-	// init pin out
 	pinMode(pin_BUILTIN_LED, OUTPUT);
-	pinMode(D3, OUTPUT);
-	pinMode(D4, OUTPUT);
-
-	// off led
-	digitalWrite(pin_BUILTIN_LED, OFF);
-	digitalWrite(D3, OFF);
-	digitalWrite(D4, OFF);
-
-	// while (1)
-	// {
-	// 	digitalWrite(D4, ON);
-	// 	digitalWrite(D3, ON);
-	// 	digitalWrite(pin_BUILTIN_LED, ON);
-	// 	delay(500);
-
-	// 	digitalWrite(D4, OFF);
-	// 	digitalWrite(D3, OFF);
-	// 	digitalWrite(pin_BUILTIN_LED, OFF);
-	// 	delay(500);
-	// }
 
 	// pin button setup option config
 	pinMode(pin_input_01, INPUT);
@@ -438,7 +477,7 @@ void setup()
 	{
 		DEBUG_1("chế độ config");
 		WiFi.softAPConfig(local_IP, gateway, subnet);
-		WiFi.softAP(ssidWifi, passwordWifi);
+		WiFi.softAP(ssidWifi, passwordWifi, 7);
 
 		dnsServer.setTTL(10);
 		dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
@@ -448,9 +487,6 @@ void setup()
 		server.on("/jquery.js", HTTP_GET, jqueryjs);
 		server.on("/getdatajson", HTTP_GET, getdatajson);
 		server.on("/postdatajson", HTTP_POST, postdatajson);
-
-		// server.on("/jquery.js", HTTP_GET, load_jquery_b);
-		// server web esp8266
 
 		server.enableCORS(true);
 		server.begin();
@@ -467,6 +503,7 @@ void setup()
 			Serial.println("Parsing input failed!");
 			return;
 		}
+		DEBUG_1(myObject);
 
 		String ESP_NAME_ = myObject["ESP_NAME"];
 		String TOPIC_ = myObject["TOPIC"];
@@ -478,17 +515,38 @@ void setup()
 		String mqttUser_ = myObject["mqttUser"];
 		String mqttPassword_ = myObject["mqttPassword"];
 
+		String pinout1_ = myObject["pinout1"];
+		String pinout2_ = myObject["pinout2"];
+		String pinout3_ = myObject["pinout3"];
+
 		ESP_NAME = ESP_NAME_;
 		c_TOPIC = TOPIC_;
 		ssid = ssid_;
 		password = password_;
+		mqttPort = mqttPort_;
 		mqttServer = mqttServer_;
 		mqttUser = mqttUser_;
 		mqttPassword = mqttPassword_;
 
+		pinout1 = pinout1_.toInt();
+		pinout2 = pinout2_.toInt();
+		pinout3 = pinout3_.toInt();
+
+		DEBUG_2("mqttPort : ", mqttPort);
+
 		// setup wifi
 		DEBUG_1("setup wifi");
 		setup_wifi(ssid_, password_);
+
+		// init pin out
+		pinMode(pinout1, OUTPUT);
+		pinMode(pinout2, OUTPUT);
+		pinMode(pinout3, OUTPUT);
+
+		// off led
+		digitalWrite(pinout1, OFF);
+		digitalWrite(pinout2, OFF);
+		digitalWrite(pinout3, OFF);
 	}
 
 	// delay
@@ -516,11 +574,11 @@ void loop()
 
 		// if (WiFi.status() == WL_CONNECTED && clientMQTT.connected())
 		// {
-		// 	// numb++;
-		// 	// String data = int_to_string(numb);
-		// 	// bool resultMQTT = clientMQTT.publish(c_TOPIC, "ok esp8266");
-		// 	// Serial.print("MQTT Result: ");
-		// 	// Serial.println(numb);
+		// 	String s_topic_status = c_TOPIC + "-status";
+		// 	String ts = String(millis());
+		// 	bool resultMQTT = clientMQTT.publish(s_topic_status.c_str(), ts.c_str());
+		// 	Serial.print("MQTT Result: ");
+		// 	Serial.println(resultMQTT);
 		// }
 
 		clientMQTT.loop();
